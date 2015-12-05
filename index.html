@@ -1,0 +1,49 @@
+<!doctype html>
+{% autoescape true %}
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
+  <script type="text/javascript" src="/js/av.js"></script>
+  <link href="css/av.css" rel="stylesheet" type="text/css">
+  <body>
+    <div class="hid">
+      Game: <input id="gamename" type="text" placeholder="Game name"></input>
+      <button id="gamebutton">Join Game</button> (a new game will be created if existing is not found)
+    </div>
+    
+    <div class="status">
+      <div id="addplayer">
+        <div class="note">Add yourself or claim a player below:</div>
+        <div style="display:flex">
+          <input id="playername" type="text" placeholder="Your name" />
+          <button id="playerbutton">Add Me!</button>
+        </div>
+      </div>
+      
+      <div id="info" class="hid">
+        <span>You: <span id="name">???</span></span>
+        <button id="toggle">Toggle role info</button>
+      </div>
+      <div id="secret" class="hid">
+        <div>You are <span id="role">?</span> and see:
+          <ul id="sees">
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <h2>Players:</h2>
+    <ul id="people">
+    </ul>
+    
+    <h2>Roles:</h2>
+    <ul id="roles">
+    </ul>
+
+    <div style="margin-top:40pt; float:right">
+      <button id="refreshbutton">Manual Refresh Data</button>
+      <a href="admin" target="_blank">Admin page</a>
+    </div>
+  </body>
+</html>
+{% endautoescape %}

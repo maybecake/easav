@@ -1,0 +1,65 @@
+    .hid {
+      display: none;
+    }
+    
+    body {
+      padding: 3pt;
+      margin: 0;
+    }
+    
+    ul {
+      list-style-type: none;
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+    }
+    
+    li {
+      padding: 3pt;
+      border: 1px solid #eee;
+      margin: 5pt;
+      flex-grow: 1;
+      text-align: center;
+      min-width: 60pt;
+    }
+    
+    a {
+      display:block;
+    }
+
+    .status { font-size: 15pt; }
+    #name { font-weight: bold }
+
+    input, button {
+      line-height: 20pt;
+    }
+    
+    #playername,
+    #playerbutton {
+      font-size: 13pt;
+      padding: 2pt;
+      margin: 2pt;
+    }
+    
+    #playername {
+      flex-grow: 1;
+    }
+    
+    .note {
+      font-size: 11pt;
+    }
+    
+    #info {
+      display: flex;
+      justify-content: space-between;
+      padding: 2pt;
+    }
+    #info.hid {
+      display: none;
+    }
+    
+    #role {
+      font-weight: bold;
+      color: #999;
+    }

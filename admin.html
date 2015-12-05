@@ -1,0 +1,46 @@
+<!doctype html>
+{% autoescape true %}
+<html>
+<script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
+<script>
+    var assign = function() {
+      $.post('/role', {assign:1}, function(data) {
+        console.log('assigned roles:', data);
+      });
+      location.reload();
+    };
+    
+    var toggle = function() {
+      $('#people').toggleClass('hid');
+    };
+    
+    $(document).ready(function() {
+      $('#assign').click(assign);
+      $('#toggle').click(toggle);
+    });
+</script>
+<style>
+  .hid { display: none; }
+</style>
+<body>
+    <h2>Players: <button id="toggle">Toggle</button> <button id="assign">Assign Roles</button></h2>
+    <ul id="people" class="hid">
+    {% for person in people %}
+      <li>{{ person.name }} ( {{ person.role }} ) <a href="/ppl?player={{person.name}}" target="_blank">check data as this player</a>
+    {% endfor %}
+    </ul>
+    
+    <h2>Roles:</h2>
+    <ul>
+      {% for role in roles %}
+      <li>{{ role.role }}
+      {% endfor %}
+    </ul>
+    
+    <form action="/admin" method="post" style="margin-top:10px">
+      <input type="hidden" name="del" value="1" />
+      <input type="submit" value="Clear data" />
+    </form>
+ </html>
+ </body>
+ {% endautoescape %}
