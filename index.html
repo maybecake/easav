@@ -1,13 +1,15 @@
 <!doctype html>
 {% autoescape true %}
 <html>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
-  <script type="text/javascript" src="/js/av.js"></script>
-  <link href="css/av.css" rel="stylesheet" type="text/css">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="/js/av.js"></script>
+    <link type="text/css" href="css/av.css" rel="stylesheet">
+  </head>
   <body>
     <div class="hid">
-      Game: <input id="gamename" type="text" placeholder="Game name"></input>
+      Game: <input id="gamekey" type="text" placeholder="Game name"></input>
       <button id="gamebutton">Join Game</button> (a new game will be created if existing is not found)
     </div>
     

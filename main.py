@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, urllib, json, cgi, random, jinja2, webapp2
+import os, urllib, json, cgi, random, jinja2, webapp2, datetime
 # from google.appengine.api import users
 from google.appengine.ext import ndb
 
@@ -73,9 +73,7 @@ ROLE_INFO = {
   'G6': {'align': 'good', 'sees': []}
 }
 
-def game_key(key = 'default_game'):
-  return ndb.Key('Game', key)
-  
+# Storage data structures
 class Person(ndb.Model):
   id = ndb.IntegerProperty()
   name = ndb.StringProperty()
@@ -85,9 +83,21 @@ class Role(ndb.Model):
   id = ndb.IntegerProperty()
   role = ndb.StringProperty()
   
-class Games(ndb.Model):
+class Game(ndb.Model):
   date = ndb.DateTimeProperty(auto_now_add=True)
-  key = ndb.StringProperty()
+  gamekey = ndb.StringProperty()
+
+class Mission(ndb.Model):
+  completed = ndb.BooleanProperty()
+  failsRequred = ndb.IntegerProperty()
+  fails = ndb.IntegerProperty()
+  who = ndb.StructuredProperty(Role, repeated=True)
+
+def master_key(key = 'default'):
+  return ndb.Key('Master', key)
+
+def game_key(key = 'default_game'):
+  return ndb.Key('Game', key)
   
 def get_ppl(key = 'default_game'):
   return Person.query(ancestor = game_key(key)).order(Person.id).fetch(10)
@@ -99,33 +109,61 @@ def get_roles(key = 'default_game'):
   return Role.query(ancestor = game_key(key)).order(Role.id).fetch(20)
   
 def get_games():
-  return Games.query().order(-Games.date)
+  return Game.query().order(-Game.date)
   
 def clear_data(key = 'default_game'):
   for p in get_ppl(key):
     p.key.delete()
   for r in get_roles(key):
     r.key.delete()  
+  for g in get_games():
+    g.key.delete()
 
 class MainHandler(webapp2.RequestHandler):
   def get(self):
     template = JINJA_ENV.get_template('index.html')
     self.response.write(template.render(''))
 
-class AdminHandler(webapp2.RequestHandler):
+
+class UtcTzinfo(datetime.tzinfo):
+  def utcoffset(self, dt): return datetime.timedelta(0)
+  def dst(self, dt): return datetime.timedelta(0)
+  def tzname(self, dt): return 'UTC'
+  def olsen_name(self): return 'UTC'
+
+
+class PstTzinfo(datetime.tzinfo):
+  def utcoffset(self, dt): return datetime.timedelta(hours=-8)
+  def dst(self, dt): return datetime.timedelta(0)
+  def tzname(self, dt): return 'PST+08PDT'
+  def olsen_name(self): return 'US/Pacific'
+
+class GameHandler(webapp2.RequestHandler):
   def get(self):
-    templateValues = {
-      'people': get_ppl(),
-      'roles': get_roles()
-    }
-    template = JINJA_ENV.get_template('admin.html')
-    self.response.write(template.render(templateValues))
-    
+    res = {}
+    games = get_games()
+
+    res['games'] = [{'key': g.gamekey,
+       'time': g.date.strftime('%y-%m-%d')} for g in games]
+
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.write(json.dumps(res))
+
   def post(self):
-    if self.request.get('del'):
-      clear_data()
-      self.redirect('/admin')
-    
+    self.response.headers['Content-Type'] = 'application/json'
+    gamekey = self.request.get('gamekey')
+    masterkey = master_key()
+
+    exists = Game.query(Game.gamekey == gamekey, ancestor = masterkey).count()
+    if exists == 0 :
+      game = Game(parent = masterkey)
+      game.gamekey = gamekey
+      game.put()
+      self.response.write(json.dumps({'added': 'ok'}))
+    else:
+      self.response.write(json.dumps({'error': 'duplicate'}))
+
+
 class PeopleHandler(webapp2.RequestHandler):
   def get(self):
     res = {}
@@ -162,9 +200,10 @@ class PeopleHandler(webapp2.RequestHandler):
       self.response.write(json.dumps('error', 'noname'));
       return
       
-    exists = Person.query(Person.name == name, ancestor = game_key()).count()
+    gamekey = game_key()
+    exists = Person.query(Person.name == name, ancestor = gamekey).count()
     if exists == 0 :
-      person = Person(parent=game_key())
+      person = Person(parent = gamekey)
       person.id = num_ppl()
       person.name = name
       person.put()
@@ -172,6 +211,7 @@ class PeopleHandler(webapp2.RequestHandler):
     else:
       self.response.write(json.dumps({'error': 'duplicate'}))
     
+
 class RoleHandler(webapp2.RequestHandler):
   def get(self):
     roles = get_roles()
@@ -198,10 +238,27 @@ class RoleHandler(webapp2.RequestHandler):
         person.role = roles.pop()
         person.put()
       self.redirect('/role')
+
+
+class AdminHandler(webapp2.RequestHandler):
+  def get(self):
+    templateValues = {
+      'people': get_ppl(),
+      'roles': [ROLE_INFO[r.role] for r in get_roles()]
+    }
+    template = JINJA_ENV.get_template('admin.html')
+    self.response.write(template.render(templateValues))
+    
+  def post(self):
+    if self.request.get('del'):
+      clear_data()
+      self.redirect('/admin')
+
       
 app = webapp2.WSGIApplication([
   ('/', MainHandler),
   ('/ppl', PeopleHandler),
   ('/role', RoleHandler),
-  ('/admin', AdminHandler)
+  ('/admin', AdminHandler),
+  ('/game', GameHandler)
 ], debug=True)
