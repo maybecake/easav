@@ -2,26 +2,26 @@
  * Easy av.
  */
 
-var g_name;
-var g_game;
-    
+var g_playerName; // player name
+var g_gamekey; // game key
+
 var setName_ = function (name) {
-    g_name = name;
+    g_playerName = name;
     $('#name').text(name)
     $('#addplayer').addClass('hid');
     $('#info').removeClass('hid');
     refresh();
 };
-    
+
 var handleJoinGame = function() {
     var game = $('#gamename').val();
     if (game) {
-        g_game = game;
+        g_gamekey = game;
         console.log('joining game:', game);
         $('#gamebutton').addClass('hid');
     }
 };
-    
+
 var addPlayerSuccess = function(name, data) {
     console.log('added player successfully:', data);
     if (data['error']) {
@@ -31,7 +31,7 @@ var addPlayerSuccess = function(name, data) {
         refresh();
     }
 };
-    
+
 var handleAddPlayer = function() {
     var name = $('#playername').val();
     if (name) {
@@ -39,20 +39,20 @@ var handleAddPlayer = function() {
         $.post('/ppl', {name:name}, addPlayerSuccess.bind(this, name));
     }
 };
-    
+
 var claim = function(name) {
     console.log('claim:', name);
     setName_(name);
 }
-    
-    function refresh() {
-	$.get('ppl', {player: g_name}, function(data) {
+
+var refresh = function() {
+	$.get('ppl', {player: g_playerName}, function(data) {
 		console.log('ppl:', data);
 		$('#role').text(data['role'] ? data['role'] : '?');
 		$('#people').empty();
 		$.each(data['people'], function(i, name) {
 			var append = '';
-			if (!g_name) {
+			if (!g_playerName) {
 			    append = ' <a href="javascript:claim(\'' + name + '\')">claim player</a>';
 			}
 			$('#people').append('<li>' + name + append);
@@ -79,7 +79,8 @@ var claim = function(name) {
 var toggle = function() {
     $('#secret').toggleClass('hid');
 };
-    
+
+
 $(document).ready(function() {
 	$('#gamebutton').click(handleJoinGame);
 	$('#playerbutton').click(handleAddPlayer);
