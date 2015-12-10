@@ -31,46 +31,102 @@ ALL_ROLES = [
 ROLE_INFO = {
   'Merlin':   {
     'align': 'good',
+    'name': 'Merlin',
     'desc': 'Knows evil except Mordred',
     'seetext': 'Knows are evil',
     'sees': ['Assassin', 'Morgana', 'Oberon', 'B1', 'B2', 'B3', 'B4']
   },
   'Assassin': {
     'align': 'evil',
+    'name': 'Assassin',
     'desc': 'Tries to kill Merlin if 3 missions pass. Knows other evil except Oberon.',
     'seetext': 'Knows are evil',
     'sees': ['Morgana', 'Mordred', 'B1', 'B2', 'B3', 'B4']
   },
   'Morgana':  {
     'align': 'evil',
+    'name': 'Morgana',
     'desc': 'Appears as Merlin to Percival. Knows other evil except Oberon.',
     'seetext': 'Knows are evil',
     'sees': ['Assassin', 'Mordred', 'B1', 'B2', 'B3', 'B4']
   },
   'Mordred':  {
     'align': 'evil',
+    'name': 'Mordred',
     'desc': 'Unknown to Merlin. Knows other evil except Oberon.',
     'seetext': 'Knows are evil',
     'sees': ['Assassin', 'Morgana', 'B1', 'B2', 'B3', 'B4']},
   'Percival': {
     'align': 'good',
+    'name': 'Percival',
     'desc': 'Knows Merlin (or Morgana)',
     'seetext': 'Knows is Merlin (or Morgana)',
     'sees': ['Merlin', 'Morgana']},
   'Oberon': {
     'align': 'evil',
+    'name': 'Oberon',
     'desc': 'Knows nothing.',
     'sees': []},
-  'B1': {'align': 'evil', 'sees': ['Assassin', 'Morgana', 'Mordred', 'B2', 'B3', 'B4']},
-  'B2': {'align': 'evil', 'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B3', 'B4']},
-  'B3': {'align': 'evil', 'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B2', 'B4']},
-  'B4': {'align': 'evil', 'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B2', 'B3']},
-  'G1': {'align': 'good', 'sees': []},
-  'G2': {'align': 'good', 'sees': []},
-  'G3': {'align': 'good', 'sees': []},
-  'G4': {'align': 'good', 'sees': []},
-  'G5': {'align': 'good', 'sees': []},
-  'G6': {'align': 'good', 'sees': []}
+  'B1': {
+    'align': 'evil',
+    'name': 'Minion of Mordred',
+    'desc': 'Knows other evil except Oberon.',
+    'seetext': 'Knows are evil',
+    'sees': ['Assassin', 'Morgana', 'Mordred', 'B2', 'B3', 'B4']},
+  'B2': {
+    'align': 'evil', 
+    'name': 'Minion of Mordred',
+    'desc': 'Knows other evil except Oberon.',
+    'seetext': 'Knows are evil',
+    'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B3', 'B4']},
+  'B3': {
+    'align': 'evil', 
+    'name': 'Minion of Mordred',
+    'desc': 'Knows other evil except Oberon.',
+    'seetext': 'Knows are evil',
+    'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B2', 'B4']},
+  'B4': {
+    'align': 'evil', 
+    'name': 'Minion of Mordred',
+    'desc': 'Knows other evil except Oberon.',
+    'seetext': 'Knows are evil',
+    'sees': ['Assassin', 'Morgana', 'Mordred', 'B1', 'B2', 'B3']},
+  'G1': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []},
+  'G2': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []},
+  'G3': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []},
+  'G4': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []},
+  'G5': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []},
+  'G6': {
+    'align': 'good',
+    'name': 'Servent of Arthur',
+    'desc': 'Knows nothing.',
+    'seetext': 'Knows nothing',
+    'sees': []}
 }
 
 def game_key(key = 'default_game'):
@@ -184,7 +240,7 @@ class RoleHandler(webapp2.RequestHandler):
         roles.append(role)
         
     res = {}
-    res['roles'] = [ {'role':r.role} for r in roles ]
+    res['roles'] = [ {'role':r.role, 'info':ROLE_INFO[r.role]} for r in roles ]
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(res))
     

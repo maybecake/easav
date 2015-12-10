@@ -70,7 +70,8 @@ var claim = function(name) {
 		console.log('roles:', data);
 		$('#roles').empty();
 		$.each(data['roles'], function(i, role) {
-			$('#roles').append('<li>' + role['role']);
+			$('#roles').append('<li>' + role['info']['name'] +
+					   ': <span class="roleinfo">' + role['info']['desc'] + '</span>');
 		    });
 	    });
     };

@@ -7,7 +7,8 @@
       margin: 0;
     }
     
-    ul {
+ul#people,
+ul#sees {
       list-style-type: none;
       display: flex;
       flex-wrap: wrap;
@@ -15,7 +16,8 @@
       padding: 0;
     }
     
-    li {
+#people > li,
+#sees > li {
       padding: 3pt;
       border: 1px solid #eee;
       margin: 5pt;
@@ -63,3 +65,8 @@
       font-weight: bold;
       color: #999;
     }
+
+.roleinfo {
+  font-size: 12pt;
+  color: #999;
+}
