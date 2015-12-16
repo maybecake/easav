@@ -256,10 +256,10 @@ class PeopleHandler(webapp2.RequestHandler):
     self.response.write(json.dumps(res))
     
   def post(self):
-    gamekey = self.request.get('gamekey')
+    raw_gamekey = self.request.get('gamekey')
     name = self.request.get('name')
 
-    if not gamekey:
+    if not raw_gamekey:
       self.error('503')
       return
 
@@ -268,7 +268,7 @@ class PeopleHandler(webapp2.RequestHandler):
       return
     
     self.response.headers['Content-Type'] = 'application/json'
-    gamekey = game_key(gamekey)
+    gamekey = game_key(raw_gamekey)
     exists = Person.query(Person.name == name, ancestor=gamekey).count()
     if exists == 0 :
       person = Person(parent=gamekey)

@@ -28,7 +28,7 @@ var handleAddPlayer = function() {
     var name = $('#playername').val();
     if (name) {
         console.log('Try to add:', name);
-        $.post('/ppl', {name:name}, addPlayerSuccess.bind(this, name));
+        $.post('/ppl', {gamekey: g_gamekey, name: name}, addPlayerSuccess.bind(this, name));
     }
 };
 
@@ -67,7 +67,10 @@ var getGames_ = function() {
 };
 
 
-
+/**
+ * Refreshes the data on the page.
+ * 
+ */
 var refresh = function() {
 	$.get('ppl', {gamekey: g_gamekey, player: g_playerName}, function(data) {
 		console.log('ppl:', data);
@@ -105,7 +108,7 @@ var toggle = function() {
 
 
 $(document).ready(function() {
-	$('#playerbutton').click(handleAddPlayer);
+	$('#playerbutton').on('click', handleAddPlayer);
 	$('#toggle').click(toggle);
      
 	$('#refreshbutton').click(refresh);
