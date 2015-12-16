@@ -200,7 +200,7 @@ class GameHandler(webapp2.RequestHandler):
     games = get_games()
 
     res['games'] = [{'key': g.gamekey,
-       'time': g.date.strftime('%y-%m-%d')} for g in games]
+       'time': g.date.strftime('%Y-%m-%d')} for g in games]
 
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(res))
@@ -222,10 +222,16 @@ class GameHandler(webapp2.RequestHandler):
 
 class PeopleHandler(webapp2.RequestHandler):
   def get(self):
+    gamekey = self.request.get('gamekey')
+    player = self.request.get('player')
+
+    if not gamekey:
+      self.error('503')
+      return
+
     res = {}
-    people = get_ppl()
+    people = get_ppl(gamekey)
     res['people'] = [ p.name for p in people ]
-    player = self.request.get('player')    
     
     if player:
       prole = None
@@ -250,16 +256,22 @@ class PeopleHandler(webapp2.RequestHandler):
     self.response.write(json.dumps(res))
     
   def post(self):
-    self.response.headers['Content-Type'] = 'application/json'
+    gamekey = self.request.get('gamekey')
     name = self.request.get('name')
+
+    if not gamekey:
+      self.error('503')
+      return
+
     if not name:
       self.response.write(json.dumps('error', 'noname'));
       return
-      
-    gamekey = game_key()
-    exists = Person.query(Person.name == name, ancestor = gamekey).count()
+    
+    self.response.headers['Content-Type'] = 'application/json'
+    gamekey = game_key(gamekey)
+    exists = Person.query(Person.name == name, ancestor=gamekey).count()
     if exists == 0 :
-      person = Person(parent = gamekey)
+      person = Person(parent=gamekey)
       person.id = num_ppl()
       person.name = name
       person.put()
@@ -270,10 +282,12 @@ class PeopleHandler(webapp2.RequestHandler):
 
 class RoleHandler(webapp2.RequestHandler):
   def get(self):
-    roles = get_roles()
+    gamekey = self.request.get('gamekey')
+
+    roles = get_roles(gamekey)
     if len(roles) == 0:
       for idx, r in enumerate(ALL_ROLES) :
-        role = Role(parent=game_key())
+        role = Role(parent=game_key(gamekey))
         role.id = idx
         role.role = r
         role.put()
@@ -285,10 +299,12 @@ class RoleHandler(webapp2.RequestHandler):
     self.response.write(json.dumps(res))
     
   def post(self):
+    gamekey = self.request.get('gamekey')
+
     if self.request.get('assign'):
       people = get_ppl()
       # only get enough roles to match the number of players
-      roles = [ r.role for r in get_roles()][:len(people)]
+      roles = [ r.role for r in get_roles(gamekey)][:len(people)]
       random.shuffle(roles)
       for person in people:
         person.role = roles.pop()

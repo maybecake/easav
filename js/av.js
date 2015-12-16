@@ -2,8 +2,8 @@
  * Easy av.
  */
 
-var g_playerName; // player name
-var g_gamekey; // game key
+var g_playerName;  // player name
+var g_gamekey;     // game key
 
 var setName_ = function (name) {
     g_playerName = name;
@@ -13,14 +13,6 @@ var setName_ = function (name) {
     refresh();
 };
 
-var handleJoinGame = function() {
-    var game = $('#gamename').val();
-    if (game) {
-        g_gamekey = game;
-        console.log('joining game:', game);
-        $('#gamebutton').addClass('hid');
-    }
-};
 
 var addPlayerSuccess = function(name, data) {
     console.log('added player successfully:', data);
@@ -40,13 +32,44 @@ var handleAddPlayer = function() {
     }
 };
 
+
 var claim = function(name) {
     console.log('claim:', name);
     setName_(name);
-}
+};
+
+
+/**
+ * Gets a list of games from the server and presents them as a dropdown.
+ * Once a game has been selected, it can no longer be changed unless the
+ * user reloads.
+ */
+var getGames_ = function() {
+  $.get('game', {}, function(data) {
+    var options = $('#gamesDropdown');
+    options.empty();
+    options.append($('<option />').val('').text('Select a game'));
+    if (data['games']) {
+      $.each(data['games'], function() {
+        options.append($('<option />').val(this['key']).text(this['key']));
+      });
+
+      $('#gamesDropdown').on('change', function() {
+        if (this.value) {
+          g_gamekey = this.value;
+          console.log('game key set:', g_gamekey);
+          $(this).off('change').prop('disabled', true);
+          refresh();
+        }
+      });
+    }
+  });
+};
+
+
 
 var refresh = function() {
-	$.get('ppl', {player: g_playerName}, function(data) {
+	$.get('ppl', {gamekey: g_gamekey, player: g_playerName}, function(data) {
 		console.log('ppl:', data);
 		$('#role').text(data['role'] ? data['role'] : '?');
 		$('#people').empty();
@@ -66,7 +89,7 @@ var refresh = function() {
 		}
 	    });
       
-	$.get('role', function(data) {
+	$.get('role', {gamekey: g_gamekey}, function(data) {
 		console.log('roles:', data);
 		$('#roles').empty();
 		$.each(data['roles'], function(i, role) {
@@ -82,11 +105,12 @@ var toggle = function() {
 
 
 $(document).ready(function() {
-	$('#gamebutton').click(handleJoinGame);
 	$('#playerbutton').click(handleAddPlayer);
 	$('#toggle').click(toggle);
      
 	$('#refreshbutton').click(refresh);
-	setInterval(refresh, 1000);
+
+  getGames_();
+	// setInterval(refresh, 1000);
 	// refresh();
-    });
+});

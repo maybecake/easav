@@ -6,19 +6,23 @@ var assign = function() {
 };
 
 var addGame = function() {
+  console.log('button clicked!');
   var key = $('#gamekey').val();
+  console.log('adding game: ', key);
   $.post('/game', {create:1, gamekey: key}, function(data) {
     console.log('create game:', data);
+    Util.refreshGames('#games');
   });
-  location.reload();
-}
-
-var toggle = function() {
-  $('#people').toggleClass('hid');
+  // location.reload();
 };
+
 
 $(document).ready(function() {
   $('#gamebutton').click(addGame);
   $('#assign').click(assign);
-  $('#toggle').click(toggle);
+  $('#toggle').click(Util.toggle.bind(this, '#people'));
+
+  Util.refreshGames('#games');
 });
+
+console.log('loaded admin script');
